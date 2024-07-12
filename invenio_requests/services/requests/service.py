@@ -76,7 +76,7 @@ class RequestsService(RecordService):
         expand=False,
     ):
         """Create a record."""
-        self.require_permission(identity, "create")
+        self.require_permission(identity, "create", request_type=request_type, record=topic)
 
         # we're not using "self.schema" b/c the schema may differ per
         # request type!
