@@ -238,7 +238,7 @@ class RequestsService(RecordService):
 
         # Check permissions - example of permission: can_cancel_submitted
         permission_name = f"action_{action}"
-        self.require_permission(identity, permission_name, action=action, request=request, data=data, **kwargs)
+        self.require_permission(identity, permission_name, action_obj=action, request=request, data=data, **kwargs)
 
         # Check if the action *can* be executed (i.e. a given state transition
         # is allowed).
