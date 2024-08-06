@@ -54,6 +54,7 @@ class RequestEventsService(RecordService):
         uow=None,
         expand=False,
         notify=True,
+        **kwargs
     ):
         """Create a request event.
 
@@ -62,7 +63,8 @@ class RequestEventsService(RecordService):
         :param dict data: Input data according to the data schema.
         """
         request = self._get_request(request_id)
-        self.require_permission(identity, "create_comment", request=request)
+        self.require_permission(identity, "create_comment",  request=request, data=data,
+                                event_type=event_type, notify=notify, **kwargs)
 
         # Validate data (if there are errors, .load() raises)
         schema = self._wrap_schema(event_type.marshmallow_schema())
@@ -100,12 +102,12 @@ class RequestEventsService(RecordService):
             expand=expand,
         )
 
-    def read(self, identity, id_, expand=False):
+    def read(self, identity, id_, expand=False, **kwargs):
         """Retrieve a record."""
         event = self._get_event(id_)
         request = self._get_request(event.request_id)
 
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(identity, "read", request=request, **kwargs)
 
         return self.result_item(
             self,
@@ -118,12 +120,12 @@ class RequestEventsService(RecordService):
         )
 
     @unit_of_work()
-    def update(self, identity, id_, data, revision_id=None, uow=None, expand=False):
+    def update(self, identity, id_, data, revision_id=None, uow=None, expand=False, **kwargs):
         """Update a comment (only comments can be updated)."""
         event = self._get_event(id_)
         request = self._get_request(event.request.id)
         self.require_permission(
-            identity, "update_comment", request=request, event=event
+            identity, "update_comment", request=request, event=event, data=data, **kwargs
         )
         self.check_revision_id(event, revision_id)
 
@@ -150,7 +152,7 @@ class RequestEventsService(RecordService):
         )
 
     @unit_of_work()
-    def delete(self, identity, id_, revision_id=None, uow=None):
+    def delete(self, identity, id_, revision_id=None, uow=None, **kwargs):
         """Delete a comment (only comments can be deleted)."""
         event = self._get_event(id_)
         request_id = event.request_id
@@ -158,7 +160,7 @@ class RequestEventsService(RecordService):
 
         # Permissions
         self.require_permission(
-            identity, "delete_comment", request=request, event=event
+            identity, "delete_comment", request=request, event=event, **kwargs
         )
         self.check_revision_id(event, revision_id)
 
@@ -195,7 +197,7 @@ class RequestEventsService(RecordService):
 
         # Permissions - guarded by the request's can_read.
         request = self._get_request(request_id)
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(identity, "read", request=request, params=params, **kwargs)
 
         # Prepare and execute the search
         search = self._search(
