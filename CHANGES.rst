@@ -1,5 +1,6 @@
 ..
     Copyright (C) 2021-2024 CERN.
+    Copyright (C) 2024 Graz University of Technology.
 
     Invenio-Requests is free software; you can redistribute it and/or
     modify it under the terms of the MIT License; see LICENSE file for more
@@ -7,6 +8,39 @@
 
 Changes
 =======
+
+Version v6.2.0 (released 2025-04-08)
+
+- i18n: Fix untranslated strings in facets
+- notifications: exclude system_user
+- fix: setuptools require underscores instead of dashes
+- i18n: removed deprecated messages
+- message-index: remove depreciated languages
+- ui: added theme class to request labels
+
+Version v6.1.1 (released 2025-03-12)
+
+- search: make shared filters toggleable
+
+Version v6.1.0 (released 2025-03-11)
+
+- feature: add Topic generator for request types. That enables granting permissions to users based on the topic of the request.
+- requests: split mine and shared with me
+- adds `shared_with_me` param to filter requests
+- adds dashboard dropdown to filter requests
+- adds topic generator on `can_read` request permission
+
+Version v6.0.0 (released 2025-02-13)
+
+- Promote to stable release.
+
+Version v6.0.0.dev2 (released 2025-01-23)
+
+Version v6.0.0.dev1 (released 2024-12-12)
+
+- fix: sqlalchemy.exc.ArgumentError
+- comp: make compatible to flask-sqlalchemy>=3.1
+- setup: bump major dependencies
 
 Version v5.5.0 (released 2024-12-09)
 

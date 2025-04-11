@@ -16,13 +16,16 @@ import { GridResponsiveSidebarColumn } from "react-invenio-forms";
 import { SearchBar } from "react-searchkit";
 import { Button, Container, Grid } from "semantic-ui-react";
 
-export const RequestsSearchLayout = ({ config, appName }) => {
+import { SharedOrMineFilter } from "@js/invenio_requests/components/SharedOrMineFilter";
+
+export const RequestsSearchLayout = ({ config, appName, showSharedFilters }) => {
   const [sidebarVisible, setSidebarVisible] = React.useState(false);
   return (
     <Container>
       <Grid>
         <Grid.Row>
-          <Grid.Column only="mobile tablet" mobile={3} tablet={1}>
+          <Grid.Column only="computer" computer={4} />
+          <Grid.Column only="mobile tablet" mobile={2} tablet={1}>
             <Button
               basic
               size="medium"
@@ -33,17 +36,35 @@ export const RequestsSearchLayout = ({ config, appName }) => {
             />
           </Grid.Column>
 
+          {showSharedFilters && (
+            <Grid.Column
+              mobile={showSharedFilters ? 14 : 13}
+              tablet={showSharedFilters ? 7 : 4}
+              computer={showSharedFilters ? 4 : 3}
+              floated="right"
+              className="text-align-right-mobile"
+            >
+              <SharedOrMineFilter />
+            </Grid.Column>
+          )}
           <Grid.Column
-            mobile={13}
+            mobile={showSharedFilters ? 16 : 13}
             tablet={4}
             computer={3}
             floated="right"
             className="text-align-right-mobile"
           >
-            <RequestStatusFilter className="rel-mb-1" />
+            <RequestStatusFilter
+              className="rel-mb-1"
+              keepFiltersOnUpdate={showSharedFilters}
+            />
           </Grid.Column>
 
-          <Grid.Column mobile={16} tablet={11} computer={9}>
+          <Grid.Column
+            mobile={16}
+            tablet={showSharedFilters ? 16 : 11}
+            computer={showSharedFilters ? 5 : 9}
+          >
             <SearchBar placeholder={i18next.t("Search in my requests...")} />
           </Grid.Column>
         </Grid.Row>
@@ -71,8 +92,10 @@ export const RequestsSearchLayout = ({ config, appName }) => {
 RequestsSearchLayout.propTypes = {
   config: PropTypes.object.isRequired,
   appName: PropTypes.string,
+  showSharedFilters: PropTypes.bool,
 };
 
 RequestsSearchLayout.defaultProps = {
   appName: undefined,
+  showSharedFilters: false,
 };
