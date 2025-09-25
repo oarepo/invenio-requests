@@ -185,7 +185,14 @@ class RequestsService(RecordService):
         # run components
         self.run_components("update", identity, data=data, record=request, uow=uow)
 
-        uow.register(RecordCommitOp(request, indexer=self.indexer))
+        # needs kwargs oarepo feature
+        uow.register(
+            RecordCommitOp(
+                request,
+                indexer=self.indexer,
+                index_refresh=kwargs.get("refresh", False),
+            )
+        )
 
         return self.result_item(
             self,
@@ -214,7 +221,13 @@ class RequestsService(RecordService):
         # Get and run the request type's create action.
         self._execute(identity, request, request.type.delete_action, uow)
 
-        uow.register(RecordDeleteOp(request, indexer=self.indexer))
+        uow.register(
+            RecordDeleteOp(
+                request,
+                indexer=self.indexer,
+                index_refresh=kwargs.get("refresh", False),
+            )
+        )
 
         return True
 

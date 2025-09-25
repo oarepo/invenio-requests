@@ -74,6 +74,9 @@ class RequestsResourceConfig(RecordResourceConfig, ConfiguratorMixin):
     }
 
     request_search_args = RequestSearchRequestArgsSchema
+    request_refresh_args = {
+        "refresh": ma.fields.Bool(missing=False),
+    }
 
     error_handlers = FromConfig(
         "REQUESTS_ERROR_HANDLERS", default=request_error_handlers

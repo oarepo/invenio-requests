@@ -63,13 +63,11 @@ class InvenioRequests:
 
         class ServiceConfigs:
             requests = obj_or_import_string(
-                app.config.get(
-                    "INVENIO_REQUESTS_SERVICE_CONFIG_CLASS", RequestsServiceConfig
-                )
+                app.config.get("REQUESTS_SERVICE_CONFIG_CLASS", RequestsServiceConfig)
             ).build(app)
             request_events = obj_or_import_string(
                 app.config.get(
-                    "INVENIO_REQUESTS_EVENTS_SERVICE_CONFIG_CLASS",
+                    "REQUESTS_EVENTS_SERVICE_CONFIG_CLASS",
                     RequestEventsServiceConfig,
                 )
             ).build(app)
@@ -81,20 +79,18 @@ class InvenioRequests:
         service_configs = self.service_configs(app)
 
         self.requests_service = obj_or_import_string(
-            app.config.get("INVENIO_REQUESTS_SERVICE_CLASS", RequestsService)
+            app.config.get("REQUESTS_SERVICE_CLASS", RequestsService)
         )(
             config=service_configs.requests,
         )
         self.request_events_service = obj_or_import_string(
-            app.config.get(
-                "INVENIO_REQUESTS_EVENTS_SERVICE_CLASS", RequestEventsService
-            )
+            app.config.get("REQUESTS_EVENTS_SERVICE_CLASS", RequestEventsService)
         )(
             config=service_configs.request_events,
         )
         self.user_moderation_requests_service = obj_or_import_string(
             app.config.get(
-                "INVENIO_REQUESTS_USER_MODERATION_SERVICE_CLASS",
+                "REQUESTS_USER_MODERATION_SERVICE_CLASS",
                 UserModerationRequestService,
             )
         )(
@@ -104,25 +100,21 @@ class InvenioRequests:
     def init_resources(self, app):
         """Init resources."""
         self.requests_resource = obj_or_import_string(
-            app.config.get("INVENIO_REQUESTS_RESOURCE_CLASS", RequestsResource)
+            app.config.get("REQUESTS_RESOURCE_CLASS", RequestsResource)
         )(
             service=self.requests_service,
             config=obj_or_import_string(
-                app.config.get(
-                    "INVENIO_REQUESTS_RESOURCE_CONFIG_CLASS", RequestsResourceConfig
-                )
+                app.config.get("REQUESTS_RESOURCE_CONFIG_CLASS", RequestsResourceConfig)
             ).build(app),
         )
 
         self.request_events_resource = obj_or_import_string(
-            app.config.get(
-                "INVENIO_REQUESTS_COMMENTS_RESOURCE_CLASS", RequestCommentsResource
-            )
+            app.config.get("REQUESTS_COMMENTS_RESOURCE_CLASS", RequestCommentsResource)
         )(
             service=self.request_events_service,
             config=obj_or_import_string(
                 app.config.get(
-                    "INVENIO_REQUESTS_COMMENTS_RESOURCE_CONFIG_CLASS",
+                    "REQUESTS_COMMENTS_RESOURCE_CONFIG_CLASS",
                     RequestCommentsResourceConfig,
                 )
             ),
