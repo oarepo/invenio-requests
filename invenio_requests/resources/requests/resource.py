@@ -10,7 +10,13 @@
 """Requests resource."""
 
 from flask import g
-from flask_resources import resource_requestctx, response_handler, route
+from flask_resources import (
+    from_conf,
+    request_parser,
+    resource_requestctx,
+    response_handler,
+    route,
+)
 from invenio_records_resources.resources import RecordResource
 from invenio_records_resources.resources.records.resource import (
     request_data,
@@ -20,6 +26,10 @@ from invenio_records_resources.resources.records.resource import (
     request_view_args,
 )
 from invenio_records_resources.resources.records.utils import search_preference
+
+request_refresh_args = request_parser(
+    from_conf("request_refresh_args"), location="args"
+)
 
 
 #
@@ -107,6 +117,7 @@ class RequestsResource(RecordResource):
     @request_headers
     @request_view_args
     @request_data
+    @request_refresh_args
     @response_handler()
     def update(self):
         """Update an item."""
@@ -116,16 +127,19 @@ class RequestsResource(RecordResource):
             identity=g.identity,
             data=resource_requestctx.data,
             expand=resource_requestctx.args.get("expand", False),
+            refresh=resource_requestctx.args.get("refresh", False),
         )
         return item.to_dict(), 200
 
     @request_headers
     @request_view_args
+    @request_refresh_args
     def delete(self):
         """Delete an item."""
         self.service.delete(
             id_=resource_requestctx.view_args["id"],
             identity=g.identity,
+            refresh=resource_requestctx.args.get("refresh", False),
         )
         return "", 204
 

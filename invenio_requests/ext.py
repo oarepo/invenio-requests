@@ -12,7 +12,7 @@
 
 import inspect
 
-from invenio_base.utils import entry_points
+from invenio_base.utils import entry_points, obj_or_import_string
 
 from . import config
 from .registry import TypeRegistry
@@ -67,9 +67,21 @@ class InvenioRequests:
         """Customized service configs."""
 
         class ServiceConfigs:
-            requests = RequestsServiceConfig.build(app)
-            request_events = RequestEventsServiceConfig.build(app)
-            request_files = RequestFilesServiceConfig.build(app)
+            requests = obj_or_import_string(
+                app.config.get("REQUESTS_SERVICE_CONFIG_CLASS", RequestsServiceConfig)
+            ).build(app)
+            request_events = obj_or_import_string(
+                app.config.get(
+                    "REQUESTS_EVENTS_SERVICE_CONFIG_CLASS",
+                    RequestEventsServiceConfig,
+                )
+            ).build(app)
+            request_files = obj_or_import_string(
+                app.config.get(
+                    "REQUESTS_FILES_SERVICE_CONFIG_CLASS",
+                    RequestFilesServiceConfig,
+                )
+            ).build(app)
 
         return ServiceConfigs
 
@@ -77,34 +89,85 @@ class InvenioRequests:
         """Initialize the service and resource for Requests."""
         service_configs = self.service_configs(app)
 
-        self.requests_service = RequestsService(
+        ResolvedRequestsService = obj_or_import_string(
+            app.config.get("REQUESTS_SERVICE_CLASS", RequestsService)
+        )
+        ResolvedRequestEventsService = obj_or_import_string(
+            app.config.get("REQUESTS_EVENTS_SERVICE_CLASS", RequestEventsService)
+        )
+        ResolvedRequestFilesService = obj_or_import_string(
+            app.config.get("REQUESTS_FILES_SERVICE_CLASS", RequestFilesService)
+        )
+        ResolvedUserModerationRequestService = obj_or_import_string(
+            app.config.get(
+                "REQUESTS_USER_MODERATION_SERVICE_CLASS",
+                UserModerationRequestService,
+            )
+        )
+
+        self.requests_service = ResolvedRequestsService(
             config=service_configs.requests,
         )
-        self.request_events_service = RequestEventsService(
+        self.request_events_service = ResolvedRequestEventsService(
             config=service_configs.request_events,
         )
-        self.request_files_service = RequestFilesService(
+        self.request_files_service = ResolvedRequestFilesService(
             config=service_configs.request_files,
         )
-        self.user_moderation_requests_service = UserModerationRequestService(
+        self.user_moderation_requests_service = ResolvedUserModerationRequestService(
             requests_service=self.requests_service,
         )
 
     def init_resources(self, app):
         """Init resources."""
-        self.requests_resource = RequestsResource(
+
+        ResolvedRequestsResource = obj_or_import_string(
+            app.config.get("REQUESTS_RESOURCE_CLASS", RequestsResource)
+        )
+        ResolvedRequestResourceConfig = obj_or_import_string(
+            app.config.get("REQUESTS_RESOURCE_CONFIG_CLASS", RequestsResourceConfig)
+        )
+        ResolvedRequestCommentsResource = obj_or_import_string(
+            app.config.get("REQUESTS_COMMENTS_RESOURCE_CLASS", RequestCommentsResource)
+        )
+        ResolvedRequestCommentsResourceConfig = obj_or_import_string(
+            app.config.get(
+                "REQUESTS_COMMENTS_RESOURCE_CONFIG_CLASS",
+                RequestCommentsResourceConfig,
+            )
+        )
+        ResolvedRequestFilesResource = obj_or_import_string(
+            app.config.get("REQUESTS_FILES_RESOURCE_CLASS", RequestFilesResource)
+        )
+        ResolvedRequestFilesResourceConfig = obj_or_import_string(
+            app.config.get(
+                "REQUESTS_FILES_RESOURCE_CONFIG_CLASS",
+                RequestFilesResourceConfig,
+            )
+        )
+        ResolvedRequestFilesResource = obj_or_import_string(
+            app.config.get("REQUESTS_FILES_RESOURCE_CLASS", RequestFilesResource)
+        )
+        ResolvedRequestFilesResourceConfig = obj_or_import_string(
+            app.config.get(
+                "REQUESTS_FILES_RESOURCE_CONFIG_CLASS",
+                RequestFilesResourceConfig,
+            )
+        )
+
+        self.requests_resource = ResolvedRequestsResource(
             service=self.requests_service,
-            config=RequestsResourceConfig.build(app),
+            config=ResolvedRequestResourceConfig.build(app),
         )
 
-        self.request_events_resource = RequestCommentsResource(
+        self.request_events_resource = ResolvedRequestCommentsResource(
             service=self.request_events_service,
-            config=RequestCommentsResourceConfig,
+            config=ResolvedRequestCommentsResourceConfig,
         )
 
-        self.request_files_resource = RequestFilesResource(
+        self.request_files_resource = ResolvedRequestFilesResource(
             service=self.request_files_service,
-            config=RequestFilesResourceConfig,
+            config=ResolvedRequestFilesResourceConfig,
         )
 
     def init_registry(self, app):
