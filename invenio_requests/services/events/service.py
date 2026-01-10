@@ -448,7 +448,9 @@ class RequestEventsService(RecordService):
         """
         # Permissions - guarded by the request's can_read.
         request = self._get_request(request_id)
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(
+            identity, "read", request=request, params=params, **kwargs
+        )
 
         # If a specific event ID is requested, we need to work out the corresponding page number.
         focus_event = None
