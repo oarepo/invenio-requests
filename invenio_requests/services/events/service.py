@@ -71,6 +71,7 @@ class RequestEventsService(RecordService):
         expand=False,
         notify=True,
         parent_id=None,
+        **kwargs
     ):
         """Create a request event (top-level or reply).
 
@@ -87,7 +88,15 @@ class RequestEventsService(RecordService):
             if event_type.type_id != LogEventType.type_id:
                 # Check permission based on whether this is a reply or top-level comment
                 permission = "reply_comment" if parent_id else "create_comment"
-                self.require_permission(identity, permission, request=request)
+                self.require_permission(
+                    identity,
+                    permission,
+                    request=request,
+                    data=data,
+                    event_type=event_type,
+                    notify=notify,
+                    **kwargs,
+                )
         except PermissionDeniedError:
             if current_app.config.get(
                 "REQUESTS_LOCKING_ENABLED", False
@@ -176,12 +185,12 @@ class RequestEventsService(RecordService):
             request=request,
         )
 
-    def read(self, identity, id_, expand=False):
+    def read(self, identity, id_, expand=False, **kwargs):
         """Retrieve a record."""
         event = self._get_event(id_)
         request = self._get_request(event.request_id)
 
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(identity, "read", request=request, **kwargs)
 
         return self.result_item(
             self,
@@ -197,13 +206,20 @@ class RequestEventsService(RecordService):
         )
 
     @unit_of_work()
-    def update(self, identity, id_, data, revision_id=None, uow=None, expand=False):
+    def update(
+        self, identity, id_, data, revision_id=None, uow=None, expand=False, **kwargs
+    ):
         """Update a comment (only comments can be updated)."""
         event = self._get_event(id_)
         request = self._get_request(event.request.id)
         try:
             self.require_permission(
-                identity, "update_comment", request=request, event=event
+                identity,
+                "update_comment",
+                request=request,
+                event=event,
+                data=data,
+                **kwargs,
             )
         except PermissionDeniedError:
             if current_app.config.get(
@@ -263,7 +279,7 @@ class RequestEventsService(RecordService):
         )
 
     @unit_of_work()
-    def delete(self, identity, id_, revision_id=None, uow=None):
+    def delete(self, identity, id_, revision_id=None, uow=None, **kwargs):
         """Delete a comment (only comments can be deleted)."""
         event = self._get_event(id_)
         request_id = event.request_id
@@ -271,7 +287,7 @@ class RequestEventsService(RecordService):
 
         # Permissions
         self.require_permission(
-            identity, "delete_comment", request=request, event=event
+            identity, "delete_comment", request=request, event=event, **kwargs
         )
         self.check_revision_id(event, revision_id)
 
@@ -336,7 +352,9 @@ class RequestEventsService(RecordService):
 
         # Permissions - guarded by the request's can_read.
         request = self._get_request(request_id)
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(
+            identity, "read", request=request, params=params, **kwargs
+        )
 
         # Build query for top-level events (parents) with optional children preview
         # Uses join relationships to include children via inner_hits when they exist
@@ -400,7 +418,9 @@ class RequestEventsService(RecordService):
         """
         # Permissions - guarded by the request's can_read.
         request = self._get_request(request_id)
-        self.require_permission(identity, "read", request=request)
+        self.require_permission(
+            identity, "read", request=request, params=params, **kwargs
+        )
 
         # If a specific event ID is requested, we need to work out the corresponding page number.
         focus_event = None
