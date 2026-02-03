@@ -15,7 +15,7 @@ import Loader from "../components/Loader";
 import { DeleteConfirmationModal } from "../components/modals/DeleteConfirmationModal";
 import RequestsFeed from "../components/RequestsFeed";
 import { TimelineCommentEditor } from "../timelineCommentEditor";
-import { TimelineCommentEventControlled } from "../timelineCommentEventControlled";
+import TimelineCommentEventControlled from "../timelineCommentEventControlled";
 import { getEventIdFromUrl } from "../timelineEvents/utils";
 import LoadMore from "./LoadMore";
 import TimelineEventPlaceholder from "../components/TimelineEventPlaceholder";

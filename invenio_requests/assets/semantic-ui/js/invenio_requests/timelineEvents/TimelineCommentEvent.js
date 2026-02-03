@@ -18,7 +18,7 @@ import { TimelineEventBody } from "../components/TimelineEventBody";
 import { toRelativeTime } from "react-invenio-forms";
 import { isEventSelected } from "./utils";
 import { RequestEventsLinksExtractor } from "../api/InvenioRequestEventsApi.js";
-import { TimelineCommentReplies } from "../timelineCommentReplies/index.js";
+import TimelineCommentReplies from "../timelineCommentReplies/index.js";
 
 class TimelineCommentEvent extends Component {
   constructor(props) {

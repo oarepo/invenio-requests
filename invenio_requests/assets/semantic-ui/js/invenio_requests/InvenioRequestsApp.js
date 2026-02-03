@@ -11,7 +11,7 @@ import {
   InvenioRequestEventsApi,
   RequestEventsLinksExtractor,
 } from "./api";
-import { Request } from "./request";
+import Request from "./request";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { configureStore } from "./store";

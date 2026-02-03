@@ -8,7 +8,7 @@
 import { RequestLinksExtractor } from "../../api";
 import React from "react";
 import Overridable from "react-overridable";
-import { RequestAction } from "./RequestAction";
+import RequestAction from "./RequestAction";
 import { Dropdown } from "semantic-ui-react";
 import { AppMedia } from "@js/invenio_theme/Media";
 import PropTypes from "prop-types";
