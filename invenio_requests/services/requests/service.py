@@ -219,6 +219,9 @@ class RequestsService(RecordService):
 
         return True
 
+    def _execute_action(self, identity, action_obj, action, uow, **kwargs):
+        action_obj.execute(identity, uow)
+
     def _execute(self, identity, request, action, uow):
         """Internal method to execute a given named action."""
         action_obj = RequestActions.get_action(request, action)
@@ -226,7 +229,7 @@ class RequestsService(RecordService):
         if not action_obj.can_execute():
             raise CannotExecuteActionError(action)
 
-        action_obj.execute(identity, uow)
+        self._execute_action(identity, action_obj,  action, uow)
 
     @unit_of_work()
     def execute_action(
@@ -251,7 +254,7 @@ class RequestsService(RecordService):
             raise CannotExecuteActionError(action)
 
         # Execute action and register request for persistence.
-        action_obj.execute(identity, uow, **kwargs)
+        self._execute_action(identity, action_obj,  action, uow, data=data, expand=expand, **kwargs)
         uow.register(RecordCommitOp(request, indexer=self.indexer))
 
         # Assuming that data is just for comment payload
